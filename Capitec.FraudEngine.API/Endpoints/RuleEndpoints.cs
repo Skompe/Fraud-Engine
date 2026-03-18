@@ -87,12 +87,11 @@ namespace Capitec.FraudEngine.API.Endpoints
             .RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
 
-            group.MapPut("/{name}/threshold", async (string name, UpdateThresholdRequest request, ISender mediator, CancellationToken ct) =>
+            group.MapPut("/{name}/threshold", async (string name, UpdateThresholdRequest request, ISender sender, CancellationToken ct) =>
             {
-
                 var command = new UpdateRuleThresholdCommand(name, request.Parameters);
 
-                var result = await mediator.Send(command, ct);
+                var result = await sender.Send(command, ct);
 
                 return result.IsError
                     ? result.ToProblemDetails()
@@ -119,11 +118,7 @@ namespace Capitec.FraudEngine.API.Endpoints
 
                 if (result.IsError)
                 {
-                    var validationErrors = result.Errors
-                        .GroupBy(e => e.Code)
-                        .ToDictionary(g => g.Key, g => g.Select(e => e.Description).ToArray());
-
-                    return Results.ValidationProblem(validationErrors);
+                    return result.ToProblemDetails();
                 }
 
                 if (result.Value is null)

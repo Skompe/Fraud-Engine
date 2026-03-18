@@ -23,7 +23,18 @@ namespace Capitec.FraudEngine.Application.Features.Investigations.ResolveFraudFl
             if (flag is null) return Error.NotFound("FraudFlag.NotFound", "The specified fraud flag does not exist.");
 
             var previousStatus = flag.Status;
-            flag.Resolve(request.ResolutionStatus, request.AnalystNotes);
+            try
+            {
+                flag.Resolve(request.ResolutionStatus, request.AnalystNotes);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Error.Conflict("FraudFlag.InvalidState", ex.Message);
+            }
+            catch (ArgumentException ex)
+            {
+                return Error.Validation("FraudFlag.InvalidResolution", ex.Message);
+            }
 
             var auditLog = AuditLog.Create(
                 fraudFlagId: flag.Id,

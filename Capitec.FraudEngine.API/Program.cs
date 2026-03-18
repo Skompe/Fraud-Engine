@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Authorization;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -90,8 +91,8 @@ var configuredCorsOrigins = builder.Configuration
 
 var defaultDevelopmentOrigins = new[]
 {
-    "http://localhost:3000",
-    "http://localhost:5173",
+    "https://localhost:7093",
+    "http://localhost:5162",
     "http://localhost:8080"
 };
 
