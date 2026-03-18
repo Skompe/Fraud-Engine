@@ -22,7 +22,7 @@ namespace Capitec.FraudEngine.Tests.Application.Behaviors
         {
             // Arrange
             var validators = Enumerable.Empty<IValidator<DummyRequest>>();
-            var behavior = new ValidationBehavior<DummyRequest, ErrorOr<string>>(validators);
+            var behavior = new ValidationBehavior<DummyRequest, string>(validators);
             var request = new DummyRequest("ValidData");
 
             bool nextCalled = false;
@@ -53,7 +53,7 @@ namespace Capitec.FraudEngine.Tests.Application.Behaviors
                 .ReturnsAsync(new ValidationResult());
 
             var validators = new List<IValidator<DummyRequest>> { validatorMock.Object };
-            var behavior = new ValidationBehavior<DummyRequest, ErrorOr<string>>(validators);
+            var behavior = new ValidationBehavior<DummyRequest, string>(validators);
 
             bool nextCalled = false;
             RequestHandlerDelegate<ErrorOr<string>> next  = delegate
@@ -86,7 +86,7 @@ namespace Capitec.FraudEngine.Tests.Application.Behaviors
                 }));
 
             var validators = new List<IValidator<DummyRequest>> { validatorMock.Object };
-            var behavior = new ValidationBehavior<DummyRequest, ErrorOr<string>>(validators);
+            var behavior = new ValidationBehavior<DummyRequest, string>(validators);
 
             bool nextCalled = false;
             RequestHandlerDelegate<ErrorOr<string>> next = delegate

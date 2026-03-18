@@ -17,5 +17,11 @@ namespace Capitec.FraudEngine.Application.Constants
             public const string InvalidParametersCode = "Rule.InvalidParameters";
             public const string InvalidParametersMessage = "The parameters provided are not valid JSON.";
         }
+
+        public static class Identity
+        {
+            public const string InvalidRefreshTokenCode = "INVALID_REFRESH_TOKEN";
+            public const string UserNotFoundCode = "USER_NOT_FOUND";
+        }
     }
 }

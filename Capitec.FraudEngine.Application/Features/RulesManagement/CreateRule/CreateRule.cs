@@ -12,7 +12,7 @@ namespace Capitec.FraudEngine.Application.Features.RulesManagement.CreateRule
 {
     public record CreateRuleCommand(string RuleName, string Description, string Expression) : IRequest<ErrorOr<Success>>;
 
-    internal class CreateRuleHandler(IRuleRepository repository,IUnitOfWork unitOfWork): IRequestHandler<CreateRuleCommand, ErrorOr<Success>>
+    public class CreateRuleHandler(IRuleRepository repository,IUnitOfWork unitOfWork): IRequestHandler<CreateRuleCommand, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(CreateRuleCommand request, CancellationToken ct)
         {

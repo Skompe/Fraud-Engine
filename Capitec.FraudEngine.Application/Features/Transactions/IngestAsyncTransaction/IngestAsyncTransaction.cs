@@ -14,7 +14,7 @@ namespace Capitec.FraudEngine.Application.Features.Transactions.IngestAsyncTrans
     public record IngestAsyncTransactionCommand(string TransactionId, string CustomerId, decimal Amount, string Currency)
        : IRequest<ErrorOr<Success>>;
 
-    internal class IngestAsyncTransactionHandler(ITransactionRepository repository,IUnitOfWork unitOfWork): IRequestHandler<IngestAsyncTransactionCommand, ErrorOr<Success>>
+    public class IngestAsyncTransactionHandler(ITransactionRepository repository,IUnitOfWork unitOfWork): IRequestHandler<IngestAsyncTransactionCommand, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(IngestAsyncTransactionCommand request, CancellationToken ct)
         {

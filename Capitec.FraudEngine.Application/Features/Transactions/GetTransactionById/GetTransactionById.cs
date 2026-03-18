@@ -15,7 +15,7 @@ namespace Capitec.FraudEngine.Application.Features.Transactions.GetTransactionBy
     public record TransactionDetailsResponse(string TransactionId, string CustomerId, decimal Amount, string Currency, DateTime Timestamp);
 }
 
-internal class GetTransactionByIdHandler(ITransactionRepository repository): IRequestHandler<GetTransactionByIdQuery, ErrorOr<TransactionDetailsResponse>>
+public class GetTransactionByIdHandler(ITransactionRepository repository): IRequestHandler<GetTransactionByIdQuery, ErrorOr<TransactionDetailsResponse>>
 {
     public async Task<ErrorOr<TransactionDetailsResponse>> Handle(GetTransactionByIdQuery request, CancellationToken ct)
     {

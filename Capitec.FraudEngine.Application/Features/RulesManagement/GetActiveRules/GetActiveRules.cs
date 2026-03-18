@@ -15,7 +15,7 @@ namespace Capitec.FraudEngine.Application.Features.RulesManagement.GetActiveRule
 
     public record RuleResponse(string RuleName, string Description, string Expression);
 
-    internal class GetActiveRulesHandler(IRuleRepository repository): IRequestHandler<GetActiveRulesQuery, ErrorOr<List<RuleResponse>>>
+    public class GetActiveRulesHandler(IRuleRepository repository): IRequestHandler<GetActiveRulesQuery, ErrorOr<List<RuleResponse>>>
     {
         public async Task<ErrorOr<List<RuleResponse>>> Handle(GetActiveRulesQuery request, CancellationToken ct)
         {

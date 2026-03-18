@@ -14,6 +14,13 @@ namespace Capitec.FraudEngine.API.Constants
         public static class Policies
         {
             public const string StrictRateLimit = "strict";
+            public const string FraudRead = IdentityConstants.Scopes.FraudRead;
+            public const string FraudWrite = IdentityConstants.Scopes.FraudWrite;
+        }
+
+        public static class Claims
+        {
+            public const string Scope = IdentityConstants.Claims.Scope;
         }
 
         public static class Swagger

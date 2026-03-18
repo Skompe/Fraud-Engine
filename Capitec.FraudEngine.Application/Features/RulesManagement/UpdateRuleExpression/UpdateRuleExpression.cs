@@ -13,7 +13,7 @@ namespace Capitec.FraudEngine.Application.Features.RulesManagement.UpdateRuleExp
 {
     public record UpdateRuleExpressionCommand(string RuleName, string NewExpression) : IRequest<ErrorOr<Success>>;
 
-    internal class UpdateRuleExpressionHandler(IRuleRepository repository, IUnitOfWork unitOfWork, IRuleCacheInvalidator cacheInvalidator) : IRequestHandler<UpdateRuleExpressionCommand, ErrorOr<Success>>
+    public class UpdateRuleExpressionHandler(IRuleRepository repository, IUnitOfWork unitOfWork, IRuleCacheInvalidator cacheInvalidator) : IRequestHandler<UpdateRuleExpressionCommand, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(UpdateRuleExpressionCommand request, CancellationToken ct)
         {

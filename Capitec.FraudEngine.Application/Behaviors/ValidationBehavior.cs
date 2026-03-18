@@ -9,11 +9,10 @@ using System.Threading.Tasks;
 
 namespace Capitec.FraudEngine.Application.Behaviors
 {
-    public class ValidationBehavior<TRequest, TResponse>(IEnumerable<IValidator<TRequest>> validators): IPipelineBehavior<TRequest, TResponse>
-        where TRequest : IRequest<TResponse>
-        where TResponse : IErrorOr
+    public class ValidationBehavior<TRequest, TValue>(IEnumerable<IValidator<TRequest>> validators): IPipelineBehavior<TRequest, ErrorOr<TValue>>
+        where TRequest : IRequest<ErrorOr<TValue>>
     {
-        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
+        public async Task<ErrorOr<TValue>> Handle(TRequest request, RequestHandlerDelegate<ErrorOr<TValue>> next, CancellationToken cancellationToken)
         {
             if (!validators.Any())
             {
@@ -43,7 +42,7 @@ namespace Capitec.FraudEngine.Application.Behaviors
                     description: validationFailure.ErrorMessage))
                 .ToList();
 
-            return (dynamic)errors;
+            return errors;
         }
     }
 }

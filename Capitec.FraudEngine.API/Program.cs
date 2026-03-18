@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.RateLimiting;
 using Capitec.FraudEngine.Domain.Abstractions.Rules;
 using Capitec.FraudEngine.API.Infrastructure;
 using Capitec.FraudEngine.API.Constants;
+using Capitec.FraudEngine.API.Authorization;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,8 +20,6 @@ builder.Services.AddProblemDetails();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi(options =>
 {
@@ -69,13 +69,50 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!))
             };
         });
-builder.Services.AddAuthorization();
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(SecurityConstants.Policies.FraudRead, policy =>
+        policy.Requirements.Add(new ScopeRequirement(SecurityConstants.Policies.FraudRead)));
+    
+    options.AddPolicy(SecurityConstants.Policies.FraudWrite, policy =>
+        policy.Requirements.Add(new ScopeRequirement(SecurityConstants.Policies.FraudWrite)));
+});
+
+builder.Services.AddSingleton<IAuthorizationHandler, ScopeAuthorizationHandler>();
+
+var configuredCorsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>()
+    ?.Where(origin => !string.IsNullOrWhiteSpace(origin))
+    .Select(origin => origin.Trim())
+    .ToArray() ?? [];
+
+var defaultDevelopmentOrigins = new[]
+{
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://localhost:8080"
+};
+
+var allowedCorsOrigins = configuredCorsOrigins.Length > 0
+    ? configuredCorsOrigins
+    : builder.Environment.IsDevelopment()
+        ? defaultDevelopmentOrigins
+        : [];
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        // This would be tightened up in a real application
-        policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+        if (allowedCorsOrigins.Length == 0)
+        {
+            return;
+        }
+
+        policy.WithOrigins(allowedCorsOrigins)
+            .AllowAnyHeader()
+            .AllowAnyMethod();
     });
 });
 
@@ -93,10 +130,6 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    //if (app.Environment.IsDevelopment())
-    //{
-    //    await Task.Delay(3000);
-    //}
     var seeder = scope.ServiceProvider.GetRequiredService<FraudDbSeeder>();
     await seeder.SeedAsync(app.Environment.IsProduction());
 

@@ -14,7 +14,7 @@ namespace Capitec.FraudEngine.Application.Features.Transactions.CalculateCustome
     public record VelocityResponse(int TransactionCount, decimal TotalAmountSpent);
 
 
-    internal class CalculateCustomerVelocityHandler(ITransactionRepository repository): IRequestHandler<GetCustomerVelocityQuery, ErrorOr<VelocityResponse>>
+    public class CalculateCustomerVelocityHandler(ITransactionRepository repository): IRequestHandler<GetCustomerVelocityQuery, ErrorOr<VelocityResponse>>
     {
         public async Task<ErrorOr<VelocityResponse>> Handle(GetCustomerVelocityQuery request, CancellationToken ct)
         {

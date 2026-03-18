@@ -55,6 +55,7 @@ namespace Capitec.FraudEngine.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(newParameters);
             Parameters = newParameters;
+            UpdatedAt = DateTime.UtcNow;
         }
 
         public void Update(string description, string? expression, string? parameters, bool isActive)
