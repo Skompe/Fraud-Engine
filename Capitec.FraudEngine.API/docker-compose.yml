@@ -1,0 +1,72 @@
+﻿
+services:
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: fraud-engine-db
+    restart: always
+    environment:
+      POSTGRES_USER: engine_admin
+      POSTGRES_PASSWORD: fraudEngine!
+      POSTGRES_DB: FraudEngineDb
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U engine_admin -d FraudEngineDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - fraud_network
+        
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    healthcheck:
+      test: rabbitmq-diagnostics -q ping
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    container_name: fraud-engine-queue
+    restart: always
+    ports:
+      - "5672:5672"   
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: rmq_admin
+      RABBITMQ_DEFAULT_PASS: fraudEngine!
+    networks:
+      - fraud_network
+
+  fraud-api:
+    build:
+      context: ..
+      dockerfile: Capitec.FraudEngine.API/Dockerfile
+    container_name: fraud-engine-api
+    restart: on-failure
+    ports:
+      - "8080:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=FraudEngineDb;Username=engine_admin;Password=fraudEngine!;
+      - Jwt__Key=HyN0m9Le4QHHQds944iZYPB611M60k9MkUSUcWdB5Cc=
+      - Jwt__Issuer=Capitec.FraudEngine
+      - Jwt__Audience=FraudEngine.Internal
+      - Jwt__ExpiryInMinutes=60
+      - RabbitMQ__HostName=rabbitmq
+      - RabbitMQ__UserName=rmq_admin
+      - RabbitMQ__Password=fraudEngine!
+    depends_on:
+      postgres-db:
+        condition: service_healthy 
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - fraud_network   
+
+volumes:
+  pgdata:
+  
+networks:
+  fraud_network:
+    driver: bridge

@@ -1,0 +1,52 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+
+# VS Code
+.vscode/
+
+# Test and coverage output
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Local app configuration overrides and secrets
+appsettings.Local.json
+appsettings.*.local.json
+.env
+.env.*
+
+# ASP.NET Core / tooling
+Properties/launchSettings.json
+launchSettings.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Containers
+docker-compose.override.yml
+
+# Generated files
+*.cache
+*.tmp
+*.temp

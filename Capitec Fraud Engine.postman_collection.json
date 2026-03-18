@@ -1,0 +1,988 @@
+{
+  "info": {
+    "_postman_id": "dfadd51a-f127-40e2-a858-c7a569436eb2",
+    "name": "Capitec Fraud Engine",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "598844"
+  },
+  "item": [
+    {
+      "name": "1. Identity",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200 or 409 (Conflict)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 409]);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin3@capitec.co.za\",\r\n  \"password\": \"Capitec@2026!\",\r\n  \"role\": \"Admin\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/identity/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "identity",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"jwt_token\", jsonData.token);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"username\": \"admin@capitec.co.za\",\r\n  \"password\": \"Capitec@2026!\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/identity/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "identity",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Customers",
+      "item": [
+        {
+          "name": "Batch Ingest Customers (Sync)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  { \"customerId\": \"CUST-001\", \"firstName\": \"James\", \"lastName\": \"Holden\" },\r\n  { \"customerId\": \"CUST-002\", \"firstName\": \"Naomi\", \"lastName\": \"Nagata\" },\r\n  { \"customerId\": \"CUST-003\", \"firstName\": \"Amos\", \"lastName\": \"Burton\" },\r\n  { \"customerId\": \"CUST-004\", \"firstName\": \"Alex\", \"lastName\": \"Kamal\" },\r\n  { \"customerId\": \"CUST-005\", \"firstName\": \"Chrisjen\", \"lastName\": \"Avasarala\" },\r\n  { \"customerId\": \"CUST-006\", \"firstName\": \"Roberta\", \"lastName\": \"Draper\" },\r\n  { \"customerId\": \"CUST-007\", \"firstName\": \"Josephus\", \"lastName\": \"Miller\" },\r\n  { \"customerId\": \"CUST-008\", \"firstName\": \"Julie\", \"lastName\": \"Mao\" },\r\n  { \"customerId\": \"CUST-009\", \"firstName\": \"Fred\", \"lastName\": \"Johnson\" },\r\n  { \"customerId\": \"CUST-010\", \"firstName\": \"Clarissa\", \"lastName\": \"Mao\" }\r\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/batch-no-pubsub",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "batch-no-pubsub"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Ingest Customers (Async)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 202 Accepted\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"customers\": [\r\n    { \"customerId\": \"CUST-404\", \"firstName\": \"Luke\", \"lastName\": \"Skywalker\" },\r\n    { \"customerId\": \"CUST-999\", \"firstName\": \"Leia\", \"lastName\": \"Organa\" },\r\n    { \"customerId\": \"CUST-111\", \"firstName\": \"Han\", \"lastName\": \"Solo\" },\r\n    { \"customerId\": \"CUST-112\", \"firstName\": \"Chewbacca\", \"lastName\": \"Wookiee\" },\r\n    { \"customerId\": \"CUST-113\", \"firstName\": \"Lando\", \"lastName\": \"Calrissian\" },\r\n    { \"customerId\": \"CUST-114\", \"firstName\": \"Din\", \"lastName\": \"Djarin\" },\r\n    { \"customerId\": \"CUST-115\", \"firstName\": \"Grogu\", \"lastName\": \"Yoda\" },\r\n    { \"customerId\": \"CUST-116\", \"firstName\": \"Ahsoka\", \"lastName\": \"Tano\" },\r\n    { \"customerId\": \"CUST-117\", \"firstName\": \"Boba\", \"lastName\": \"Fett\" },\r\n    { \"customerId\": \"CUST-118\", \"firstName\": \"Bo-Katan\", \"lastName\": \"Kryze\" }\r\n  ]\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/customers/batch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers",
+                "batch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customers Paged",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/customers?page=1&pageSize=50",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "customers"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "pageSize",
+                  "value": "50"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Rules Management",
+      "item": [
+        {
+          "name": "Create Single Rule",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created or 400 (if exists)\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([201, 400]);",
+                  "});",
+                  "pm.collectionVariables.set(\"current_rule_name\", \"PostmanTestRule\");"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"ruleName\": \"PostmanTestRule\",\r\n  \"description\": \"Rule created via automated test script\",\r\n  \"expression\": \"Amount > 150000\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Active Rules",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if(jsonData.length > 0) {",
+                  "        pm.collectionVariables.set(\"current_rule_name\", jsonData[0].ruleName);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rules",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Rule By Name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/{{current_rule_name}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "{{current_rule_name}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Rule (Full)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"description\": \"Updated via Postman collection runner\",\r\n  \"expression\": \"Amount > 175000\",\r\n  \"parameters\": null,\r\n  \"isActive\": true\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/{{current_rule_name}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "{{current_rule_name}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Rule Expression",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"newExpression\": \"Amount > 200000\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/{{current_rule_name}}/expression",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "{{current_rule_name}}",
+                "expression"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Rule Threshold",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"parameters\": \"{\\\"MaxTransactions\\\": 10, \\\"TimeWindowMinutes\\\": 30}\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/ForeignCurrencyHighRisk/threshold",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "ForeignCurrencyHighRisk",
+                "threshold"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Toggle Rule Status",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"isActive\": true\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/{{current_rule_name}}/toggle",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "{{current_rule_name}}",
+                "toggle"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Clear Rule Cache",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/rules/cache/clear",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "rules",
+                "cache",
+                "clear"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "4. Transactions",
+      "item": [
+        {
+          "name": "Ingest Async Transaction (Single)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 202 Accepted\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"current_txn_id\", \"ASYTXN-\" + pm.variables.replaceIn('{{$guid}}'));"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"transactionId\": \"{{current_txn_id}}\",\r\n  \"customerId\": \"CUST-002\",\r\n  \"amount\": 150.00,\r\n  \"currency\": \"ZAR\",\r\n  \"timestamp\": \"{{$isoTimestamp}}\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/async",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "async"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Process Sync Transaction",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "exec": [
+                  "pm.collectionVariables.set(\"current_txn_id\", \"TXN-\" + pm.variables.replaceIn('{{$guid}}'));"
+                ],
+                "type": "text/javascript"
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"transactionId\": \"{{current_txn_id}}\",\r\n  \"customerId\": \"CUST-001\",\r\n  \"amount\": 250000.00,\r\n  \"currency\": \"ZAR\",\r\n  \"timestamp\": \"{{$isoTimestamp}}\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/sync",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "sync"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Batch Ingest Async Transactions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 202 Accepted\", function () {",
+                  "    pm.response.to.have.status(202);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"transactions\": [\r\n    { \"transactionId\": \"TXN-V-{{$guid}}\", \"customerId\": \"CUST-007\", \"amount\": 1200.50, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-V-{{$guid}}\", \"customerId\": \"CUST-007\", \"amount\": 450.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-V-{{$guid}}\", \"customerId\": \"CUST-007\", \"amount\": 3200.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-V-{{$guid}}\", \"customerId\": \"CUST-007\", \"amount\": 150.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-V-{{$guid}}\", \"customerId\": \"CUST-007\", \"amount\": 890.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-HV-{{$guid}}\", \"customerId\": \"CUST-999\", \"amount\": 185000.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-HV-{{$guid}}\", \"customerId\": \"CUST-999\", \"amount\": 250000.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-INT-{{$guid}}\", \"customerId\": \"CUST-404\", \"amount\": 5000.00, \"currency\": \"USD\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-NORM-{{$guid}}\", \"customerId\": \"CUST-111\", \"amount\": 55.00, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" },\r\n    { \"transactionId\": \"TXN-NORM-{{$guid}}\", \"customerId\": \"CUST-111\", \"amount\": 210.75, \"currency\": \"ZAR\", \"timestamp\": \"{{$isoTimestamp}}\" }\r\n  ]\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/batch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "batch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Transaction By Id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/{{current_txn_id}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "{{current_txn_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer Velocity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/transactions/customer/CUST_8899_001/velocity?minutes=60",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "transactions",
+                "customer",
+                "CUST_8899_001",
+                "velocity"
+              ],
+              "query": [
+                {
+                  "key": "minutes",
+                  "value": "60",
+                  "description": "Time window in minutes to calculate velocity"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "5. Investigations",
+      "item": [
+        {
+          "name": "Batch Ingest Investigations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 201 Created\", function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "[\r\n  { \"transactionId\": \"TXN-4e916d93-a52d-47ab-bdd8-a403da6141ba\", \"customerId\": \"CUST-888\", \"source\": \"VelocityRule\", \"status\": \"Pending\", \"reason\": \"Customer exceeded 5 transactions in 1 hour\", \"severity\": \"High\", \"rules\": [\"HighVelocityZAR_v1\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-123\", \"source\": \"HighValueRule\", \"status\": \"Pending\", \"reason\": \"ZAR transaction over 100,000\", \"severity\": \"Critical\", \"rules\": [\"AmountThreshold_v2\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-404\", \"source\": \"ForeignCurrencyRule\", \"status\": \"Pending\", \"reason\": \"USD transaction over threshold\", \"severity\": \"Medium\", \"rules\": [\"ForeignCurrencyHighRisk\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-999\", \"source\": \"MicroTransactionRule\", \"status\": \"Pending\", \"reason\": \"Multiple R1.00 transactions\", \"severity\": \"High\", \"rules\": [\"MicroTransactionTesting\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-111\", \"source\": \"VelocityRule\", \"status\": \"Pending\", \"reason\": \"Velocity spike detected\", \"severity\": \"Medium\", \"rules\": [\"HighVelocitySpend\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-112\", \"source\": \"HighValueRule\", \"status\": \"Pending\", \"reason\": \"R85,000 transferred to new account\", \"severity\": \"High\", \"rules\": [\"AmountThreshold_v2\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-113\", \"source\": \"HighValueRule\", \"status\": \"Pending\", \"reason\": \"R250,000 outlier\", \"severity\": \"Critical\", \"rules\": [\"HighValueTransaction\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-114\", \"source\": \"VelocityRule\", \"status\": \"Pending\", \"reason\": \"Rapid succession of payments\", \"severity\": \"High\", \"rules\": [\"HighVelocitySpend\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-115\", \"source\": \"MicroTransactionRule\", \"status\": \"Pending\", \"reason\": \"Test card pings\", \"severity\": \"Low\", \"rules\": [\"MicroTransactionTesting\"] },\r\n  { \"transactionId\": \"TXN-{{$guid}}\", \"customerId\": \"CUST-116\", \"source\": \"ForeignCurrencyRule\", \"status\": \"Pending\", \"reason\": \"GBP transaction in unexpected location\", \"severity\": \"Medium\", \"rules\": [\"ForeignCurrencyHighRisk\"] }\r\n]"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/investigations/batch",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "investigations",
+                "batch"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Pending Investigations",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if(jsonData.length > 0) {",
+                  "        pm.collectionVariables.set(\"current_flag_id\", jsonData[0].id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/investigations/pending",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "investigations",
+                "pending"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Customer Flags",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.collectionVariables.set(\"current_flag_id\", jsonData[0].flagId);",
+                  "}"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/investigations/customer/CUST-888",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "investigations",
+                "customer",
+                "CUST-888"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Resolve Fraud Flag",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 204 No Content\", function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {},
+                "requests": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"resolutionStatus\": \"FALSE_POSITIVE\",\r\n  \"analystNotes\": \"Verified with customer via phone call. Legitimate transaction.\"\r\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/investigations/{{current_flag_id}}/resolve",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "investigations",
+                "{{current_flag_id}}",
+                "resolve"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_txn_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_flag_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "current_rule_name",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
