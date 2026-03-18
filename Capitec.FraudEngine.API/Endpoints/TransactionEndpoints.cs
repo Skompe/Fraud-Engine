@@ -23,7 +23,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     { IsError: true } result => result.ToProblemDetails(),
                     var result => Results.Ok(result.Value)
                 };
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
             group.MapPost("/async", async ([FromBody] IngestAsyncTransactionCommand command, IMediator mediator) =>
             {
@@ -33,7 +33,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     _ => Results.Accepted()
                 };
 
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
 
             group.MapGet("/{id}", async (string id, IMediator mediator) =>
@@ -43,7 +43,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     { IsError: true } result => result.ToProblemDetails(),
                     var result => Results.Ok(result.Value)
                 };
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
             group.MapGet("/customer/{customerId}/velocity", async (string customerId, [FromQuery] int minutes, IMediator mediator) =>
             {
@@ -54,7 +54,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                 };
 
 
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
 
             group.MapPost("/batch", async (IngestAsyncTransactionsCommand command, ISender mediator, CancellationToken cancellationToken) =>
@@ -72,7 +72,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     Message = $"Successfully queued {result.Value} transactions for asynchronous processing.",
                     Timestamp = DateTime.UtcNow
                 });
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
         }
     }
 }

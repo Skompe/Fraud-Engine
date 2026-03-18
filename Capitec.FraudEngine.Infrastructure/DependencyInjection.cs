@@ -46,12 +46,14 @@ namespace Capitec.FraudEngine.Infrastructure
             services.AddScoped<IFraudDbContext>(sp => sp.GetRequiredService<FraudDbContext>());
             services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<FraudDbContext>());
             services.AddTransient<FraudDbSeeder>();
-            services.AddSingleton<VelocityRule>();
-            services.AddSingleton<IFraudRule>(sp => sp.GetRequiredService<VelocityRule>());
+            services.AddScoped<VelocityRule>();
+            services.AddScoped<IFraudRule>(sp => sp.GetRequiredService<VelocityRule>());
             services.AddScoped<ITransactionRepository, TransactionRepository>();
             services.AddScoped<IFraudFlagRepository, FraudFlagRepository>();
             services.AddScoped<IFraudRuleManager, FraudRuleManager>();
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+            services.AddScoped<IAuditLogRepository, AuditLogRepository>();
             services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddSingleton<IPasswordService, PasswordService>();
             services.AddScoped<IRuleCacheInvalidator, RuleCacheInvalidator>();

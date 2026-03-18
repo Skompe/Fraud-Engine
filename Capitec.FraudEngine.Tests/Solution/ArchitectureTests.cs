@@ -23,7 +23,7 @@ namespace Capitec.FraudEngine.Tests.Solution
         [Fact]
         public void DomainLayer_ShouldNot_HaveDependenciesOnOtherProjects()
         {
-            var domainAssembly = typeof(Domain.Entities.Transaction).Assembly;
+            var domainAssembly = typeof(Capitec.FraudEngine.Domain.Entities.Transaction).Assembly;
 
             var result = Types.InAssembly(domainAssembly)
                 .ShouldNot()

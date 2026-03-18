@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Error = ErrorOr.Error;
 
 namespace Capitec.FraudEngine.Application.Features.Transactions.ProcessSyncTransaction

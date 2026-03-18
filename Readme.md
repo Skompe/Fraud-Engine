@@ -40,7 +40,30 @@ Postman or similar API testing tool.
 
 **Getting Started:**
 
-1. Compile and run the application:
+1. Configure the .env file:
+
+    The compose setup reads environment values from a .env file in the Capitec.FraudEngine.API project.
+
+    Create this file: Capitec.FraudEngine.API/.env
+
+    Add the following keys:
+
+        POSTGRES_USER=engine_admin
+        POSTGRES_PASSWORD=[your_password]
+        POSTGRES_DB=FraudEngineDb
+
+        RABBITMQ_USER=rmq_admin
+        RABBITMQ_PASSWORD=[your_password]
+
+        JWT_KEY=[32-char-secret]
+        JWT_ISSUER=Capitec.FraudEngine
+        JWT_AUDIENCE=FraudEngine.Internal
+        JWT_EXPIRY_MINUTES=60
+
+    Notes:
+    - JWT_KEY must be long enough for HMAC-SHA256 signing (32+ min characters).
+
+2. Compile and run the application:
 
     The solution relies on PostgreSQL and RabbitMQ. These are fully containerized and can be spun up using Podman/Docker Compose.
 
@@ -53,16 +76,16 @@ Postman or similar API testing tool.
     If you need to completely wipe your local database and start fresh, run podman compose down -v before build it back up
 
 
-2. Access the API:
+3. Access the API:
     
             
-    The API will be available at http://localhost:8080/scalar/v1. You can use Postman or any API testing tool to interact with the endpoints. 
-    The API is secured with JWT authentication, so you will need to obtain a token by logging in with the seeded user credentials (e.g., username: admin@capitec.co.za, password: Capitec@2026!). 
+    - The API will be available at http://localhost:8080/scalar/v1. You can use Postman or any API testing tool to interact with the endpoints. 
+    - The API is secured with JWT authentication, so you will need to obtain a token by logging in with the seeded user credentials (e.g., username: admin@capitec.co.za, password: Capitec@2026!). 
 
   
-3. Test the API:
+4. Test the API:
 
-    Use Postman or a similar tool to test the API endpoints. You can perform operations such as retrieving transactions, creating new transactions, and resolving fraud flags. To make interacting with the API as frictionless as possible, a pre-configured Postman collection is included in the root of solution (Capitec Fraud Engine.postman_collection.json).
+    - Use Postman or a similar tool to test the API endpoints. You can perform operations such as retrieving transactions, creating new transactions, and resolving fraud flags. To make interacting with the API as frictionless as possible, a pre-configured Postman collection is included in the root of solution (Capitec FraudEngine.    postman_collection.json).
 
 
     

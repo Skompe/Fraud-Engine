@@ -13,7 +13,7 @@ namespace Capitec.FraudEngine.Application.Features.Investigations.GetPendingInve
 
     public record FraudFlagResponse(Guid FlagId, string TransactionId, string Severity, DateTime CreatedAt);
 
-    internal class GetPendingInvestigationsHandler(IFraudFlagRepository repository): IRequestHandler<GetPendingInvestigationsQuery, ErrorOr<List<FraudFlagResponse>>>
+    public class GetPendingInvestigationsHandler(IFraudFlagRepository repository): IRequestHandler<GetPendingInvestigationsQuery, ErrorOr<List<FraudFlagResponse>>>
     {
         public async Task<ErrorOr<List<FraudFlagResponse>>> Handle(GetPendingInvestigationsQuery request, CancellationToken ct)
         {

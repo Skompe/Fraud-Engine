@@ -5,13 +5,13 @@ services:
     container_name: fraud-engine-db
     restart: always
     environment:
-      POSTGRES_USER: engine_admin
-      POSTGRES_PASSWORD: fraudEngine!
-      POSTGRES_DB: FraudEngineDb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U engine_admin -d FraudEngineDb"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -33,8 +33,8 @@ services:
       - "5672:5672"   
       - "15672:15672" 
     environment:
-      RABBITMQ_DEFAULT_USER: rmq_admin
-      RABBITMQ_DEFAULT_PASS: fraudEngine!
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
     networks:
       - fraud_network
 
@@ -44,18 +44,20 @@ services:
       dockerfile: Capitec.FraudEngine.API/Dockerfile
     container_name: fraud-engine-api
     restart: on-failure
+    env_file:
+      - .env
     ports:
       - "8080:8080"
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=FraudEngineDb;Username=engine_admin;Password=fraudEngine!;
-      - Jwt__Key=HyN0m9Le4QHHQds944iZYPB611M60k9MkUSUcWdB5Cc=
-      - Jwt__Issuer=Capitec.FraudEngine
-      - Jwt__Audience=FraudEngine.Internal
-      - Jwt__ExpiryInMinutes=60
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}
+      - Jwt__Key=${JWT_KEY}
+      - Jwt__Issuer=${JWT_ISSUER}
+      - Jwt__Audience=${JWT_AUDIENCE}
+      - Jwt__ExpiryInMinutes=${JWT_EXPIRY_MINUTES}
       - RabbitMQ__HostName=rabbitmq
-      - RabbitMQ__UserName=rmq_admin
-      - RabbitMQ__Password=fraudEngine!
+      - RabbitMQ__UserName=${RABBITMQ_USER}
+      - RabbitMQ__Password=${RABBITMQ_PASSWORD}
     depends_on:
       postgres-db:
         condition: service_healthy 

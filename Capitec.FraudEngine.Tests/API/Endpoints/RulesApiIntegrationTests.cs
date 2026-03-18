@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Capitec.FraudEngine.API.Constants;
 using Capitec.FraudEngine.Application.Constants;
+using Capitec.FraudEngine.Tests.Fixtures;
 
 namespace Capitec.FraudEngine.Tests.API.Endpoints
 {
@@ -44,11 +45,11 @@ namespace Capitec.FraudEngine.Tests.API.Endpoints
         }
     }
 
-    public class RulesApiIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+    public class RulesApiIntegrationTests : IClassFixture<FraudEngineWebApplicationFactory>
     {
         private readonly HttpClient _client;
 
-        public RulesApiIntegrationTests(WebApplicationFactory<Program> factory)
+        public RulesApiIntegrationTests(FraudEngineWebApplicationFactory factory)
         {
             _client = factory.WithWebHostBuilder(builder =>
             {

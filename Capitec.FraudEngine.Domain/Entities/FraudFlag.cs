@@ -53,6 +53,11 @@ namespace Capitec.FraudEngine.Domain.Entities
         {
             ArgumentException.ThrowIfNullOrWhiteSpace(resolutionStatus);
 
+            if (!string.Equals(Status, DomainConstants.FraudStatus.Pending, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidOperationException("Only pending flags can be resolved.");
+            }
+
             if (resolutionStatus != DomainConstants.FraudStatus.FalsePositive && resolutionStatus != DomainConstants.FraudStatus.ConfirmedFraud)
             {
                 throw new ArgumentException("Invalid resolution status.");

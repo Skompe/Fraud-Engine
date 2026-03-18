@@ -21,10 +21,10 @@ namespace Capitec.FraudEngine.Infrastructure.Messaging.Consumer
             var fraudFlag = new FraudFlag(
                 item.TransactionId,
                 item.CustomerId,
-                item.Source,
-                item.Status,      
+                item.Status,
                 item.Reason,
                 item.Severity,
+                item.Source,
                 Array.Empty<string>() 
             );
 

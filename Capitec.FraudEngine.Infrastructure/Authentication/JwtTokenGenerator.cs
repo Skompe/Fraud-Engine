@@ -1,4 +1,5 @@
 ﻿using Capitec.FraudEngine.Application.Abstractions.Authentication;
+using Capitec.FraudEngine.Application.Constants;
 using Capitec.FraudEngine.Domain.Entities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -18,16 +19,26 @@ namespace Capitec.FraudEngine.Infrastructure.Authentication
     {
         public string GenerateToken(User user)
         {
-            
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
-            new Claim(ClaimTypes.Role, user.Role), 
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new Claim("scope", "fraud.read"),
-            new Claim("scope", "fraud.write")
-        };
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(ClaimTypes.Role, user.Role), 
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
+
+            var scopes = user.Role switch
+            {
+                IdentityConstants.Roles.Admin => new[] { IdentityConstants.Scopes.FraudRead, IdentityConstants.Scopes.FraudWrite },
+                IdentityConstants.Roles.Analyst => new[] { IdentityConstants.Scopes.FraudRead, IdentityConstants.Scopes.FraudWrite },
+                IdentityConstants.Roles.System => new[] { IdentityConstants.Scopes.FraudRead },
+                _ => new[] { IdentityConstants.Scopes.FraudRead }
+            };
+
+            foreach (var scope in scopes)
+            {
+                claims.Add(new Claim(IdentityConstants.Claims.Scope, scope));
+            }
        
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(config["Jwt:Key"]!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);

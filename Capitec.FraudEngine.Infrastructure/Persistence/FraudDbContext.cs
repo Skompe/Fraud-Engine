@@ -19,6 +19,8 @@ namespace Capitec.FraudEngine.Infrastructure.Persistence
         public DbSet<Transaction> Transactions => Set<Transaction>();
         public DbSet<User> Users => Set<User>();
         public DbSet<Customer> Customers => Set<Customer>();
+        public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+        public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -49,6 +51,27 @@ namespace Capitec.FraudEngine.Infrastructure.Persistence
 
             modelBuilder.Entity<Transaction>().HasIndex(t => new { t.CustomerId, t.Timestamp })
                 .HasDatabaseName("Ix_Transactions_CustomerId_Timestamp");
+
+            // RefreshTokenHandler configuration
+            modelBuilder.Entity<RefreshToken>()
+                .HasKey(rt => rt.Id);
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(rt => rt.Token)
+                .IsUnique();
+            modelBuilder.Entity<RefreshToken>()
+                .HasIndex(rt => rt.UserId);
+
+            // AuditLog configuration
+            modelBuilder.Entity<AuditLog>()
+                .HasKey(al => al.Id);
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(al => al.FraudFlagId);
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(al => al.UserId);
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(al => al.Action);
+            modelBuilder.Entity<AuditLog>()
+                .HasIndex(al => al.Timestamp);
         }
         public override Task<int> SaveChangesAsync(CancellationToken ct = default)
         => base.SaveChangesAsync(ct);

@@ -1,5 +1,6 @@
 ﻿using Capitec.FraudEngine.Application.Features.Identity.Login;
 using Capitec.FraudEngine.Application.Features.Identity.RegisterUser;
+using Capitec.FraudEngine.Application.Features.Identity.RefreshToken;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ namespace Capitec.FraudEngine.API.Endpoints
 {
     public record LoginRequest(string Username, string Password);
     public record LoginResponse(string AccessToken, string TokenType, int ExpiresIn);
+    public record RefreshTokenRequest(string RefreshToken);
     public record RegisterUserRequest(string Username, string Password, string Role);
     public static class IdentityEndpoints
     {
@@ -32,6 +34,21 @@ namespace Capitec.FraudEngine.API.Endpoints
                     errors => Results.Unauthorized()
                 );
             });
+
+            group.MapPost("/refresh", async (RefreshTokenRequest request, ISender mediator, CancellationToken ct) =>
+            {
+                var command = new RefreshTokenCommand(request.RefreshToken);
+
+                var result = await mediator.Send(command, ct);
+
+                return result.Match(
+                    response => Results.Ok(response),
+                    errors => Results.Unauthorized()
+                );
+            })
+            .WithName("RefreshTokenHandler")
+            .WithOpenApi()
+            .WithDescription("Refresh access token using a valid refresh token");
             
 
             group.MapPost("/register", async (RegisterUserRequest request, ISender sender, CancellationToken ct) =>

@@ -24,7 +24,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     { IsError: true } result => result.ToProblemDetails(),
                     var result => Results.Ok(result.Value)
                 };
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
             group.MapGet("/customer/{customerId}", async (string customerId, IMediator mediator) =>
             {
@@ -33,7 +33,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     { IsError: true } result => result.ToProblemDetails(),
                     var result => Results.Ok(result.Value)
                 };
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
             group.MapPost("/{flagId}/resolve", async (Guid flagId, [FromBody] ResolveFraudFlagRequest request, IMediator mediator) =>
             {
@@ -43,7 +43,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     { IsError: true } result => result.ToProblemDetails(),
                     _ => Results.NoContent()
                 };
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
             group.MapPost("/batch", async (List<IngestInvestigationRequest> requests, ISender sender, CancellationToken ct) =>
             {
@@ -68,7 +68,7 @@ namespace Capitec.FraudEngine.API.Endpoints
                     Message = $"Successfully ingested {result.Value} investigations.",
                     ProcessedItems = result.Value
                 });
-            });
+            }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
         }
     }
 }

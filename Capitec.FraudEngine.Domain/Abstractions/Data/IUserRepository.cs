@@ -12,5 +12,6 @@ namespace Capitec.FraudEngine.Domain.Abstractions.Data
         void Add(User user);
         Task<bool> ExistsAsync(string username, CancellationToken cancellationToken = default);
         Task<User?> GetByUsernameAsync(string username, CancellationToken ct);
+        Task<User?> GetByIdAsync(Guid userId, CancellationToken ct = default);
     }
 }

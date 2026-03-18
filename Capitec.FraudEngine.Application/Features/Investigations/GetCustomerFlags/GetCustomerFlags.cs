@@ -19,7 +19,7 @@ namespace Capitec.FraudEngine.Application.Features.Investigations.GetCustomerFla
         IReadOnlyCollection<string> TriggeredRules,
         DateTime CreatedAt);
 
-    internal class GetCustomerFlagsHandler(IFraudFlagRepository repository): IRequestHandler<GetCustomerFlagsQuery, ErrorOr<List<CustomerFlagResponse>>>
+    public class GetCustomerFlagsHandler(IFraudFlagRepository repository): IRequestHandler<GetCustomerFlagsQuery, ErrorOr<List<CustomerFlagResponse>>>
     {
         public async Task<ErrorOr<List<CustomerFlagResponse>>> Handle(GetCustomerFlagsQuery request, CancellationToken ct)
         {

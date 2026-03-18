@@ -14,7 +14,7 @@ namespace Capitec.FraudEngine.Application.Features.RulesManagement.ToggleRuleSta
 {
     public record ToggleRuleStatusCommand(string RuleName, bool IsActive) : IRequest<ErrorOr<Success>>;
 
-    internal class ToggleRuleStatusHandler(IRuleRepository repository, IUnitOfWork unitOfWork): IRequestHandler<ToggleRuleStatusCommand, ErrorOr<Success>>
+    public class ToggleRuleStatusHandler(IRuleRepository repository, IUnitOfWork unitOfWork): IRequestHandler<ToggleRuleStatusCommand, ErrorOr<Success>>
     {
         public async Task<ErrorOr<Success>> Handle(ToggleRuleStatusCommand request, CancellationToken ct)
         {

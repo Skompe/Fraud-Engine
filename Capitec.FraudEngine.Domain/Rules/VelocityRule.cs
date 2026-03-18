@@ -7,11 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace Capitec.FraudEngine.Domain.Rules
 {
-    public class VelocityRule(IServiceProvider serviceProvider) : IFraudRule
+    public class VelocityRule(ITransactionRepository transactionRepository) : IFraudRule
     {
         public string RuleKey => "HighVelocitySpend";
 
@@ -19,13 +18,11 @@ namespace Capitec.FraudEngine.Domain.Rules
         private int _timeWindowMinutes = 15;
         public async Task<string?> EvaluateAsync(Transaction transaction, CancellationToken ct = default)
         {
-            using var scope = serviceProvider.CreateScope();
-            var transactionRepository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
             var recentCount = await transactionRepository.GetTransactionCountAsync(transaction.CustomerId,TimeSpan.FromMinutes(_timeWindowMinutes),ct);
 
             if (recentCount >= _maxTransactions)
             {
-                return "RULE_HIGH_VELOCITY_EXCEEDED";
+                return RuleKey;
             }
 
             return null;

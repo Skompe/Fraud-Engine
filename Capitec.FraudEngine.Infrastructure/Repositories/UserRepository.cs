@@ -29,5 +29,10 @@ namespace Capitec.FraudEngine.Infrastructure.Repositories
         
             return await context.Users.AsNoTracking().SingleOrDefaultAsync(u => u.Username == username, ct);
         }
+
+        public async Task<User?> GetByIdAsync(Guid userId, CancellationToken ct = default)
+        {
+            return await context.Users.AsNoTracking().FirstOrDefaultAsync(u => u.Id == userId, ct);
+        }
     }
 }

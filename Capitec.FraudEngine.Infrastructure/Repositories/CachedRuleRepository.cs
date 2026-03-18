@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Capitec.FraudEngine.Infrastructure.Repositories
 {
-    internal  class CachedRuleRepository(RuleRepository innerRepository, IMemoryCache memoryCache, IDynamicRuleEvaluator evaluator) : IRuleRepository
+    public class CachedRuleRepository(RuleRepository innerRepository, IMemoryCache memoryCache, IDynamicRuleEvaluator evaluator) : IRuleRepository
     {
         private const string ActiveRulesCacheKey = CacheKeys.Rules.ActiveRules;
         
@@ -44,10 +44,7 @@ namespace Capitec.FraudEngine.Infrastructure.Repositories
             
             innerRepository.Add(rule);
 
-            if (rule.IsActive)
-            {
-                ClearCache();
-            }
+            ClearCache();
         }
 
 
