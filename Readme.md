@@ -32,10 +32,15 @@ Capitec.FraudEngine.Tests: A comprehensive, test suite enforcing system integrit
 **Prerequisites:**
 
 .NET 9 SDK
+
 PostgreSQL Database
+
 RabbitMQ
+
 Podman or Docker. 
+
 Postman or similar API testing tool.
+
 
 
 **Getting Started:**
