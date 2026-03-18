@@ -15,6 +15,7 @@ namespace Capitec.FraudEngine.API.Extensions
                 ErrorType.Validation => Results.BadRequest(new { Errors = errorOr.Errors!.Select(e => new { e.Code, e.Description }) }),
                 ErrorType.NotFound => Results.NotFound(new { firstError.Code, firstError.Description }),
                 ErrorType.Conflict => Results.Conflict(new { firstError.Code, firstError.Description }),
+                ErrorType.Unauthorized => Results.Unauthorized(),
                 _ => Results.InternalServerError(new { firstError.Code, firstError.Description })
             };
         }

@@ -16,44 +16,29 @@ namespace Capitec.FraudEngine.API.Endpoints
         {
             var group = app.MapGroup("/api/transactions").WithTags("Transactions").RequireAuthorization().RequireRateLimiting(SecurityConstants.Policies.StrictRateLimit);
 
-            group.MapPost("/sync", async ([FromBody] ProcessSyncTransactionCommand command, IMediator mediator) =>
+            group.MapPost("/sync", async ([FromBody] ProcessSyncTransactionCommand command, ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(command) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    var result => Results.Ok(result.Value)
-                };
+                var result = await sender.Send(command, ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
-            group.MapPost("/async", async ([FromBody] IngestAsyncTransactionCommand command, IMediator mediator) =>
+            group.MapPost("/async", async ([FromBody] IngestAsyncTransactionCommand command, ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(command) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    _ => Results.Accepted()
-                };
-
+                var result = await sender.Send(command, ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Accepted();
             }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
 
-            group.MapGet("/{id}", async (string id, IMediator mediator) =>
+            group.MapGet("/{id}", async (string id, ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(new GetTransactionByIdQuery(id)) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    var result => Results.Ok(result.Value)
-                };
+                var result = await sender.Send(new GetTransactionByIdQuery(id), ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
-            group.MapGet("/customer/{customerId}/velocity", async (string customerId, [FromQuery] int minutes, IMediator mediator) =>
+            group.MapGet("/customer/{customerId}/velocity", async (string customerId, [FromQuery] int minutes, ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(new GetCustomerVelocityQuery(customerId, minutes)) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    var result => Results.Ok(result.Value)
-                };
-
-
+                var result = await sender.Send(new GetCustomerVelocityQuery(customerId, minutes), ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
 
@@ -63,10 +48,9 @@ namespace Capitec.FraudEngine.API.Endpoints
 
                 if (result.IsError)
                 {
-                    return Results.BadRequest(result.Errors);
+                    return result.ToProblemDetails();
                 }
 
-                
                 return Results.Accepted(string.Empty, new
                 {
                     Message = $"Successfully queued {result.Value} transactions for asynchronous processing.",

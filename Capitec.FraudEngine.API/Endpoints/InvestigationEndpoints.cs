@@ -17,50 +17,36 @@ namespace Capitec.FraudEngine.API.Endpoints
         {
             var group = app.MapGroup("/api/investigations").WithTags("Investigations").RequireAuthorization().RequireRateLimiting(SecurityConstants.Policies.StrictRateLimit);
 
-            group.MapGet("/pending", async (IMediator mediator) =>
+            group.MapGet("/pending", async (ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(new GetPendingInvestigationsQuery()) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    var result => Results.Ok(result.Value)
-                };
+                var result = await sender.Send(new GetPendingInvestigationsQuery(), ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
-            group.MapGet("/customer/{customerId}", async (string customerId, IMediator mediator) =>
+            group.MapGet("/customer/{customerId}", async (string customerId, ISender sender, CancellationToken ct) =>
             {
-                return await mediator.Send(new GetCustomerFlagsQuery(customerId)) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    var result => Results.Ok(result.Value)
-                };
+                var result = await sender.Send(new GetCustomerFlagsQuery(customerId), ct);
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             }).RequireAuthorization(SecurityConstants.Policies.FraudRead);
 
-            group.MapPost("/{flagId}/resolve", async (Guid flagId, [FromBody] ResolveFraudFlagRequest request, IMediator mediator) =>
+            group.MapPost("/{flagId}/resolve", async (Guid flagId, [FromBody] ResolveFraudFlagRequest request, ISender sender, CancellationToken ct) =>
             {
                 var command = new ResolveFraudFlagCommand(flagId, request.ResolutionStatus, request.AnalystNotes);
-                return await mediator.Send(command) switch
-                {
-                    { IsError: true } result => result.ToProblemDetails(),
-                    _ => Results.NoContent()
-                };
+                var result = await sender.Send(command, ct);
+                return result.IsError ? result.ToProblemDetails() : Results.NoContent();
             }).RequireAuthorization(SecurityConstants.Policies.FraudWrite);
 
             group.MapPost("/batch", async (List<IngestInvestigationRequest> requests, ISender sender, CancellationToken ct) =>
             {
-                
                 var items = requests.Select(r => new InvestigationItem(r.TransactionId, r.CustomerId, r.Source, r.Status, r.Reason, r.Severity,r.Rules)).ToList();
 
                 var command = new IngestInvestigationsCommand(items);
 
                 var result = await sender.Send(command, ct);
 
-               
                 if (result.IsError)
                 {
-                    var validationErrors = result.Errors
-                        .GroupBy(e => e.Code)
-                        .ToDictionary(g => g.Key, g => g.Select(e => e.Description).ToArray());
-                    return Results.ValidationProblem(validationErrors);
+                    return result.ToProblemDetails();
                 }
 
                 return Results.Created("/investigations", new

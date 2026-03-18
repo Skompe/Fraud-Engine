@@ -92,7 +92,7 @@ public class ResolveFraudFlagHandlerTests
     }
 
     [Fact]
-    public async Task Handle_AlreadyResolvedFlag_ThrowsInvalidOperation()
+    public async Task Handle_AlreadyResolvedFlag_ReturnsConflictError()
     {
         // Arrange
         var flag = PendingFlag();
@@ -105,8 +105,13 @@ public class ResolveFraudFlagHandlerTests
         var command = new ResolveFraudFlagCommand(
             flag.Id, DomainConstants.FraudStatus.ConfirmedFraud, "second attempt");
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => _handler.Handle(command, CancellationToken.None));
+        // Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        Assert.True(result.IsError);
+        Assert.Equal(ErrorType.Conflict, result.FirstError.Type);
+        _auditLogRepoMock.Verify(r => r.AddAsync(It.IsAny<AuditLog>()), Times.Never);
+        _uowMock.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
     }
 }

@@ -1,15 +1,8 @@
-﻿using Capitec.FraudEngine.Application.Features.Identity.Login;
+﻿using Capitec.FraudEngine.API.Extensions;
+using Capitec.FraudEngine.Application.Features.Identity.Login;
 using Capitec.FraudEngine.Application.Features.Identity.RegisterUser;
 using Capitec.FraudEngine.Application.Features.Identity.RefreshToken;
 using MediatR;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace Capitec.FraudEngine.API.Endpoints
 {
@@ -29,10 +22,7 @@ namespace Capitec.FraudEngine.API.Endpoints
 
                 var result = await mediator.Send(query, ct);
 
-                return result.Match(
-                    response => Results.Ok(response),
-                    errors => Results.Unauthorized()
-                );
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             });
 
             group.MapPost("/refresh", async (RefreshTokenRequest request, ISender mediator, CancellationToken ct) =>
@@ -41,10 +31,7 @@ namespace Capitec.FraudEngine.API.Endpoints
 
                 var result = await mediator.Send(command, ct);
 
-                return result.Match(
-                    response => Results.Ok(response),
-                    errors => Results.Unauthorized()
-                );
+                return result.IsError ? result.ToProblemDetails() : Results.Ok(result.Value);
             })
             .WithName("RefreshTokenHandler")
             .WithOpenApi()
@@ -53,26 +40,13 @@ namespace Capitec.FraudEngine.API.Endpoints
 
             group.MapPost("/register", async (RegisterUserRequest request, ISender sender, CancellationToken ct) =>
             {
-                
                 var command = new RegisterUserCommand(request.Username, request.Password, request.Role);
 
                 var result = await sender.Send(command, ct);
 
-              
                 if (result.IsError)
                 {
-                    
-                    if (result.FirstError.Type == ErrorOr.ErrorType.Conflict)
-                    {
-                        return Results.Conflict(new { Message = result.FirstError.Description });
-                    }
-
-                    
-                    var validationErrors = result.Errors
-                        .GroupBy(e => e.Code)
-                        .ToDictionary(g => g.Key, g => g.Select(e => e.Description).ToArray());
-
-                    return Results.ValidationProblem(validationErrors);
+                    return result.ToProblemDetails();
                 }
 
                 var safeResponse = new
